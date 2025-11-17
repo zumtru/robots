@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Patter - Ulster Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d1b4e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88; }
+            to { text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88, 0 0 80px #00ff88; }
+        }
+
+        .robot-container {
+            display: flex;
+            gap: 100px;
+            margin-bottom: 40px;
+            align-items: flex-end;
+        }
+
+        .robot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .robot-body {
+            width: 120px;
+            height: 150px;
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: bob 2s ease-in-out infinite;
+        }
+
+        .robot:nth-child(2) .robot-body {
+            animation-delay: 1s;
+            background: linear-gradient(145deg, #4a3a5a, #3a2a4a);
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-2deg); }
+            50% { transform: translateY(0px) rotate(0deg); }
+            75% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        .robot-head {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+            border-radius: 10px;
+            position: absolute;
+            top: -50px;
+            left: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .robot:nth-child(2) .robot-head {
+            background: linear-gradient(145deg, #5a4a6a, #4a3a5a);
+        }
+
+        .robot-eyes {
+            display: flex;
+            gap: 20px;
+            position: absolute;
+            top: 20px;
+            left: 15px;
+        }
+
+        .eye {
+            width: 15px;
+            height: 15px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88;
+            animation: blink 3s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+
+        .robot-antenna {
+            width: 3px;
+            height: 20px;
+            background: #666;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .antenna-bulb {
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .robot:nth-child(2) .antenna-bulb {
+            background: #6b9bff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.3); opacity: 0.7; }
+        }
+
+        .robot-arms {
+            position: absolute;
+            width: 140px;
+            height: 100px;
+            top: 30px;
+            left: -10px;
+        }
+
+        .arm {
+            width: 40px;
+            height: 10px;
+            background: #555;
+            position: absolute;
+            border-radius: 5px;
+        }
+
+        .arm.left {
+            top: 20px;
+            left: -30px;
+            transform-origin: right center;
+            animation: wave-left 2s ease-in-out infinite;
+        }
+
+        .arm.right {
+            top: 20px;
+            right: -30px;
+            transform-origin: left center;
+            animation: wave-right 2s ease-in-out infinite;
+        }
+
+        @keyframes wave-left {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(-40deg); }
+        }
+
+        @keyframes wave-right {
+            0%, 100% { transform: rotate(20deg); }
+            50% { transform: rotate(40deg); }
+        }
+
+        .robot-name {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .chat-bubble {
+            position: absolute;
+            top: -120px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 300px;
+            font-size: 0.9em;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .chat-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chat-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid rgba(255, 255, 255, 0.95);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(145deg, #00ff88, #00cc70);
+            border: none;
+            border-radius: 10px;
+            color: #1e3a5f;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .music-toggle {
+            background: linear-gradient(145deg, #ff6b6b, #cc5555);
+            color: white;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 255, 136, 0.3);
+            border-radius: 50%;
+            animation: float 10s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <h1 class="title">🤖 ROBOT PATTER 🤖</h1>
+
+    <div class="robot-container">
+        <div class="robot" id="robot1">
+            <div class="robot-body">
+                <div class="robot-head">
+                    <div class="robot-antenna">
+                        <div class="antenna-bulb"></div>
+                    </div>
+                    <div class="robot-eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                </div>
+                <div class="robot-arms">
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                </div>
+                <div class="chat-bubble" id="bubble1"></div>
+            </div>
+            <div class="robot-name">Séamus</div>
+        </div>
+
+        <div class="robot" id="robot2">
+            <div class="robot-body">
+                <div class="robot-head">
+                    <div class="robot-antenna">
+                        <div class="antenna-bulb"></div>
+                    </div>
+                    <div class="robot-eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                </div>
+                <div class="robot-arms">
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                </div>
+                <div class="chat-bubble" id="bubble2"></div>
+            </div>
+            <div class="robot-name">Paddy</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="newPatter">NEW PATTER</button>
+        <button id="musicToggle" class="music-toggle">MUSIC ON/OFF</button>
+    </div>
+
+    <script>
+        // Ulster Scots conversation data
+        const conversations = [
+            {
+                robot1: "Ach Paddy, ye shud've seen me aff ma heid on Buckfast doon at the Guildhall Square!",
+                robot2: "Naw way! I wuz pure steamboats masel in Belfast, had about 12 pints in Lavery's!"
+            },
+            {
+                robot1: "Did ye get a kebab efter? I wuz atin' mine at 3am outside Peadar O'Donnell's in Derry!",
+                robot2: "Aye! Got a massive doner doon the Shankill, pure belter so it wuz!"
+            },
+            {
+                robot1: "I wuz aff the yokes on Saturday night, dancin' like a loon in Thompsons!",
+                robot2: "Haha wheeker! I wuz the same in the Limelight, absolutely fleein' I wuz!"
+            },
+            {
+                robot1: "How many Buckies did ye get through this weekend then?",
+                robot2: "Bout 3 bottles, I wuz in some state! Ma heid's still loupin'!"
+            },
+            {
+                robot1: "Went for a feed at Burger King efter the session, pure scundered at masel!",
+                robot2: "Ach sure that's standard! I got chips and gravy from the chippy in Botanic!"
+            },
+            {
+                robot1: "Me mate Big Seamus wuz pure mortal, fell over outside the Cathedral Quarter!",
+                robot2: "Ahahaha class! My mucker wuz the same on the Ormeau Road, couldn't even walk straight!"
+            },
+            {
+                robot1: "D'ye remember anythin' from Friday night or were ye in total blackout?",
+                robot2: "Naw a thing! Woke up in someone's gaff in Andersonstown, naw clue how I got there!"
+            },
+            {
+                robot1: "The peelers nearly lifted me for singin' too loud outside City Hall!",
+                robot2: "Ahahaha ya eejit! I got chased by bouncers doon Royal Avenue for tryin' to sneak back in!"
+            },
+            {
+                robot1: "Had the fear somethin' desperate on Sunday, thought I'd texted ma ex!",
+                robot2: "Ach naw! Did ye check yer phone? I'd sent about 50 messages to random ones!"
+            },
+            {
+                robot1: "Swear doon I'm never drinkin' again... until next weekend like!",
+                robot2: "Aye same here! Already got tickets for the Hatfield House on Saturday!"
+            },
+            {
+                robot1: "Were ye at that session in the Distillery Quarter? Pure mental!",
+                robot2: "Aye I wuz! Saw ye tryin' to chat up that wee doll, got absolutely pie'd so ye did!"
+            },
+            {
+                robot1: "The bouncers at Filthy's wouldn't let me in, said I wuz too steamin'!",
+                robot2: "Ahahaha that's brutal! I got bounced from the Duke of York for spillin' ma pint!"
+            },
+            {
+                robot1: "Ended up singin' rebel songs at 4am in the back of a taxi to Derry!",
+                robot2: "Classic! I wuz beltin' out Van Morrison headin' back to East Belfast!"
+            },
+            {
+                robot1: "Ma stomach's still not right from all them kebabs and buckfast!",
+                robot2: "Same! Been livin' on bacon sodies and flat lemonade all day!"
+            },
+            {
+                robot1: "Next weekend we're hittin' Portrush, gonna be absolutely mad!",
+                robot2: "Aw aye! Get some chips from Barry's then hit Kelly's, gonna be pure class!"
+            }
+        ];
+
+        // Audio context for music generation
+        let audioContext;
+        let musicPlaying = false;
+        let oscillators = [];
+        let gainNodes = [];
+
+        // Sound effect generator
+        function playBoop() {
+            if (!audioContext) return;
+
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.value = Math.random() * 200 + 400;
+            gain.gain.value = 0.1;
+
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Ambient music generator
+        function startAmbientMusic() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (musicPlaying) {
+                stopAmbientMusic();
+                return;
+            }
+
+            musicPlaying = true;
+            const now = audioContext.currentTime;
+
+            // Create multiple layers of ambient sound
+            const frequencies = [110, 220, 165, 330, 82.5]; // A2, A3, E3, E4, E2
+
+            frequencies.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+
+                // Random oscillator type for variety
+                const types = ['sine', 'triangle', 'sawtooth'];
+                osc.type = types[Math.floor(Math.random() * types.length)];
+
+                // Slightly detune for weird ambient effect
+                osc.frequency.value = freq + (Math.random() * 10 - 5);
+
+                // Filter for atmospheric sound
+                filter.type = 'lowpass';
+                filter.frequency.value = 800 + Math.random() * 400;
+                filter.Q.value = 1;
+
+                // Very low gain for ambient background
+                gain.gain.value = 0;
+                gain.gain.linearRampToValueAtTime(0.03 + Math.random() * 0.02, now + 2 + index * 0.5);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc.start();
+
+                oscillators.push(osc);
+                gainNodes.push(gain);
+
+                // Modulate the gain for wavey effect
+                setInterval(() => {
+                    if (musicPlaying) {
+                        const target = 0.02 + Math.random() * 0.03;
+                        gain.gain.linearRampToValueAtTime(target, audioContext.currentTime + 3 + Math.random() * 2);
+                    }
+                }, 4000 + index * 1000);
+            });
+
+            // Add some random blips
+            const blipInterval = setInterval(() => {
+                if (!musicPlaying) {
+                    clearInterval(blipInterval);
+                    return;
+                }
+
+                if (Math.random() > 0.7) {
+                    const blip = audioContext.createOscillator();
+                    const blipGain = audioContext.createGain();
+
+                    blip.frequency.value = 800 + Math.random() * 1200;
+                    blipGain.gain.value = 0.05;
+
+                    blip.connect(blipGain);
+                    blipGain.connect(audioContext.destination);
+
+                    blip.start();
+                    blipGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    blip.stop(audioContext.currentTime + 0.3);
+                }
+            }, 2000);
+        }
+
+        function stopAmbientMusic() {
+            musicPlaying = false;
+
+            oscillators.forEach((osc, index) => {
+                gainNodes[index].gain.linearRampToValueAtTime(0, audioContext.currentTime + 1);
+                setTimeout(() => osc.stop(), 1000);
+            });
+
+            oscillators = [];
+            gainNodes = [];
+        }
+
+        // Conversation logic
+        let currentConversation = 0;
+
+        function showConversation() {
+            playBoop();
+
+            const conversation = conversations[currentConversation];
+            const bubble1 = document.getElementById('bubble1');
+            const bubble2 = document.getElementById('bubble2');
+
+            // Hide bubbles first
+            bubble1.classList.remove('active');
+            bubble2.classList.remove('active');
+
+            // Robot 1 speaks
+            setTimeout(() => {
+                bubble1.textContent = conversation.robot1;
+                bubble1.classList.add('active');
+                playBoop();
+            }, 300);
+
+            // Robot 2 responds
+            setTimeout(() => {
+                bubble2.textContent = conversation.robot2;
+                bubble2.classList.add('active');
+                playBoop();
+            }, 3000);
+
+            // Get random conversation for next time
+            setTimeout(() => {
+                currentConversation = Math.floor(Math.random() * conversations.length);
+            }, 6000);
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('newPatter').addEventListener('click', showConversation);
+        document.getElementById('musicToggle').addEventListener('click', startAmbientMusic);
+
+        // Initialize
+        createParticles();
+        showConversation();
+    </script>
+</body>
+</html>
